@@ -1,6 +1,6 @@
 import { akarin } from 'commands/akarin/akarin.app';
 import { bot } from 'init/client';
-import { echoMenu } from './commands/help/help.menu';
+import { helpMenu } from './commands/help/help.menu';
 import { v } from './commands/v/v.app';
 
 bot.messageSource.on('message', (e) => {
@@ -10,7 +10,7 @@ bot.messageSource.on('message', (e) => {
 });
 
 bot.addCommands(akarin);
-bot.addCommands(echoMenu);
+bot.addCommands(helpMenu);
 bot.addCommands(v);
 
 bot.connect();
