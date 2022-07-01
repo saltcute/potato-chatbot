@@ -23,7 +23,9 @@
   },
   "homepage": "https://github.com/fi6/kbotify-template#readme",
   "dependencies": {
-    "kbotify": "^0.2.5"
+    "kbotify": "^0.2.5",
+    "ts-node": "^10.8.1",
+    "upath": "^2.0.1"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.28.4",

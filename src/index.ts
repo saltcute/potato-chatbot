@@ -1,13 +1,17 @@
+import { akarin } from 'commands/akarin/akarin.app';
 import { bot } from 'init/client';
-import { echoMenu } from './commands/echo/echo.menu';
+import { echoMenu } from './commands/help/help.menu';
+import { v } from './commands/v/v.app';
 
 bot.messageSource.on('message', (e) => {
     bot.logger.debug(`received:`, e);
     // 如果想要在console里查看收到信息也可以用
-    //console.log(e);
+    // console.log(e);
 });
 
+bot.addCommands(akarin);
 bot.addCommands(echoMenu);
+bot.addCommands(v);
 
 bot.connect();
 
