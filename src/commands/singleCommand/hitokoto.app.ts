@@ -27,7 +27,7 @@ class Hitokoto extends AppCommand {
                             "type": "section",
                             "text": {
                                 "type": "kmarkdown",
-                                "content": `——*${data.from_who}* 「${data.from}」`
+                                "content": `——${data.from_who == "null" ? "" : `*${data.from_who}*`} 「${data.from}」`
                             }
                         }
                     ]

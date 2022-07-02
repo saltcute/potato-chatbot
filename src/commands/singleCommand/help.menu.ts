@@ -40,6 +40,13 @@ class HelpMenu extends MenuCommand {
                     "type": "kmarkdown",
                     "content": "`.akarin`"
                 }
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "kmarkdown",
+                    "content": "`.hitokoto`"
+                }
             }
         ]
     }).toString();
