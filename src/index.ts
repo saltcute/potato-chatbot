@@ -1,6 +1,7 @@
-import { akarin } from 'commands/akarin/akarin.app';
+import { akarin } from 'commands/singleCommand/akarin.app';
 import { bot } from 'init/client';
-import { helpMenu } from './commands/help/help.menu';
+import { helpMenu } from './commands/singleCommand/help.menu';
+import { hitokoto } from 'commands/singleCommand/hitokoto.app';
 import { v } from './commands/v/v.app';
 
 bot.messageSource.on('message', (e) => {
@@ -9,8 +10,9 @@ bot.messageSource.on('message', (e) => {
     // console.log(e);
 });
 
-bot.addCommands(akarin);
 bot.addCommands(helpMenu);
+bot.addCommands(hitokoto);
+bot.addCommands(akarin);
 bot.addCommands(v);
 
 bot.connect();
