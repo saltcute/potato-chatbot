@@ -3,6 +3,7 @@ import { bot } from 'init/client';
 import { helpMenu } from './commands/singleCommand/help.menu';
 import { hitokoto } from 'commands/singleCommand/hitokoto.app';
 import { v } from './commands/v/v.app';
+import { pixivMenu } from 'commands/pixiv/pixiv.menu';
 
 bot.messageSource.on('message', (e) => {
     bot.logger.debug(`received:`, e);
@@ -10,6 +11,7 @@ bot.messageSource.on('message', (e) => {
     // console.log(e);
 });
 
+bot.addCommands(pixivMenu);
 bot.addCommands(helpMenu);
 bot.addCommands(hitokoto);
 bot.addCommands(akarin);
