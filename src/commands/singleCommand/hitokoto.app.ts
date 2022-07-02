@@ -10,7 +10,7 @@ class Hitokoto extends AppCommand {
             url: "https://international.v1.hitokoto.cn?c=a&c=b&c=c&c=l&c=h",
             type: "GET",
             success: (res: string) => {
-                console.log(data);
+                const data = JSON.parse(res);
                 return session.sendCard(new Card({
                     "type": "card",
                     "theme": "secondary",
