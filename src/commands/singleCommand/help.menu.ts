@@ -38,6 +38,13 @@ class HelpMenu extends MenuCommand {
                 "type": "section",
                 "text": {
                     "type": "kmarkdown",
+                    "content": "`.pixiv`"
+                }
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "kmarkdown",
                     "content": "`.akarin`"
                 }
             },
