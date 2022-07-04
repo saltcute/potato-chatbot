@@ -25,7 +25,6 @@
   "dependencies": {
     "kbotify": "^0.2.5",
     "najax": "^1.0.7",
-    "pixnode": "^1.0.0-b",
     "ts-node": "^10.8.1",
     "upath": "^2.0.1"
   },
