@@ -1,12 +1,84 @@
-# kbotify-template
-Starter kit for kBotify bots
+# potato-chatbot
 
-## Quick Start Guide
-1. Create a `auth.ts` under `.../src/configs`, using the template in `template-auth.ts`. Replace the security strings based on your bot.
-e.g.: ![auth](./assets/auth.png)
-2. Make sure the mode in `.../src/init/clients.ts` is consistant with your bot's mode. 
-![mode](./assets/mode.png)
-3. Under kBotify-template (the directory that you see package.json and package-lock.json), run `npm install` in console. 
-4. Run `npm start` in console under the same directory as step 3. If you have `Cannot find module 'ts-node/register'` error, see [this page](https://bobbyhadz.com/blog/typescript-cannot-find-module-ts-node-register#:~:text=If%20you're%20still%20getting,package%20in%20the%20devDependencies%20object.&text=Copied!,-%7B%20%22devDependencies%22%3A&text=You%20can%20try%20to%20manually,and%20re%2Drun%20npm%20install%20.) to troubleshoot.
-5. Then your bot, which should be already added to your server, should go online now.
-6. Send `.echo` in your Kaiheila channel like a regular chat message; the bot will respond you.
+Based on [kbotify](https://github.com/fi6/kBotify)
+
+---
+
+## Avaliable commands
+
+- `.help`
+- `.v`
+- **`.pixiv`**
+- `.akarin`
+- `.hitokoto`
+
+### `.help`
+
+Get the list of commands.
+
+```
+指令列表
+---
+.help
+.v
+.pixiv
+.akarin
+.hitokoto
+```
+
+```
+Command List
+---
+.help
+.v
+.pixiv
+.akarin
+.hitokoto
+```
+
+### `.v`
+
+Get a random quote in local file `./commands/v/quotes.json`.
+
+### `.pixiv`
+
+Serval ultilities about pixiv.
+
+```
+Pixiv 命令
+---
+.pixiv top [标签]? 获取本周 [标签] 标签的人气前九的图片，若 [标签] 缺省则为全站排名
+.pixiv illust [插画 ID] 获取 Pixiv 上对应 ID 的插画
+.pixiv author [用户 ID] 获取用户的最新九张插画
+.pixiv detail [插画 ID] 获取对应 ID 插画的详细信息（作品名、作者、标签……）
+```
+
+
+```
+Pixiv Commands
+---
+.pixiv top [tag]? Get the top 9 most popular illustrations with [tag] tag submitted this week. If [tag] is not provided, get the top 9 most popluar illustrations in every illustrations submitted this week.
+.pixiv illust [Illustration ID] Get the illustration of the given illustration ID.
+.pixiv author [User ID] Get the top 9 newest illustrations from the given user.
+.pixiv detail [Illustration ID] Get the detail of the illustration of the given ID (name, author, tags, etc.)
+```
+
+Due to data size concern, original image from pixiv will be resize to 512px in width.
+
+Every illustration needs to be uploaded to KOOK's server before sending. R-18 and R-18G (based on Pixiv) illustration (if any) will not be upload and will be replaced with the picture below.
+
+Some illustrations may be censored by KOOK after uploading to their servers. Those illustration will be replace by the same picture as well.
+
+![akarin~](https://img.kaiheila.cn/assets/2022-07/vlOSxPNReJ0dw0dw.jpg)
+
+Although KOOK seems to have their way of preventing massive reupload, after uploading, a map of pixiv illustration ID to its corresponding file link on KOOK's server will be added to a local file `./commands/pixiv/linbmap/map.json`. This can save server bandwidth and improve load time.
+
+### `.akarin`
+
+~~ｱｯｶﾘ～ﾝ~~
+
+Get a random video from the 11 title calls of Yuru Yuri Season 1.
+
+### `.hitokoto`
+
+Get a random quote from `hitokoto.cn`

@@ -29,7 +29,7 @@ class PixivMenu extends MenuCommand {
                 "type": "section",
                 "text": {
                     "type": "kmarkdown",
-                    "content": "`.pixiv top [标签]?` 获取当天 [标签] 标签的人气前九的图片，若 [标签] 缺省则为全站排名"
+                    "content": "`.pixiv top [标签]?` 获取本周 [标签] 标签的人气前九的图片，若 [标签] 缺省则为全站排名"
                 }
             },
             {
@@ -50,7 +50,7 @@ class PixivMenu extends MenuCommand {
                 "type": "section",
                 "text": {
                     "type": "kmarkdown",
-                    "content": "`.pixiv detail [插画 ID]` 获取对应 ID 插画的详细信息（作品名、作者、简介……）"
+                    "content": "`.pixiv detail [插画 ID]` 获取对应 ID 插画的详细信息（作品名、作者、标签……）"
                 }
             }
         ]
