@@ -43,7 +43,7 @@ class PixivMenu extends MenuCommand {
                 "type": "section",
                 "text": {
                     "type": "kmarkdown",
-                    "content": "`.pixiv author id/name [用户 ID/用户名]` 获取用户的最新九张插画"
+                    "content": "`.pixiv author [用户 ID]` 获取用户的最新九张插画"
                 }
             },
             {

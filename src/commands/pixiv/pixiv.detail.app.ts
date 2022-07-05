@@ -11,6 +11,7 @@ class Detail extends AppCommand {
     trigger = 'detail'; // 用于触发的文字
     intro = 'Detail';
     func: AppFunc<BaseSession> = async (session) => {
+        var loadingBarMessageID: string = "null";
         async function sendCard(res: any) {
             const data = JSON.parse(res);
             var link = "";
@@ -21,18 +22,38 @@ class Detail extends AppCommand {
                 }
                 if (linkmap.isInDatabase(val.id)) {
                     link = linkmap.getLink(val.id);
+                    return;
                 } else {
-                    session.send(`正在转存 ${val.id}_p0.jpg，可能需要较长时间……`)
+                    await session.sendCard([
+                        {
+                            "type": "card",
+                            "theme": "warning",
+                            "size": "lg",
+                            "modules": [
+                                {
+                                    "type": "section",
+                                    "text": {
+                                        "type": "kmarkdown",
+                                        "content": `正在转存 ${val.id}_p0.jpg，可能需要较长时间:hourglass_flowing_sand:……`
+                                    }
+                                }
+                            ]
+                        }
+                    ]).then((data) => {
+                        if (data.msgSent?.msgId !== undefined) {
+                            loadingBarMessageID = data.msgSent.msgId;
+                        }
+                    });
                 }
 
-                const master1200 = `https://pixiv.re/${val.id}${val.page_count > 1 ? "-1" : ""}.jpg`;
-                console.log(`Resaving... ${master1200}`);
+                const master1200 = val.image_urls.large.replace("i.pximg.net", "i.pixiv.re");
+                console.log(`[${new Date().toLocaleTimeString()}] Resaving... ${master1200}`);
                 var bodyFormData = new FormData();
                 const resizer = sharp().resize(512).jpeg();
-                const stream = got.stream(master1200).pipe(resizer)
-                // const write = fs.createWriteStream("22.jpg");
-                // stream.pipe(write);
+                const stream = got.stream(master1200).pipe(resizer); // resize
+                // const stream = got.stream(master1200); // no resize
                 bodyFormData.append('file', stream, "1.jpg");
+                var rtLink = "";
                 await axios({
                     method: "post",
                     url: "https://www.kookapp.cn/api/v3/asset/create",
@@ -42,14 +63,13 @@ class Detail extends AppCommand {
                         ...bodyFormData.getHeaders()
                     }
                 }).then((res: any) => {
-                    link = res.data.data.url;
-                    linkmap.addLink(val.id, res.data.data.url)
+                    rtLink = res.data.data.url
                 }).catch((e: any) => {
                     if (e) {
                         console.log(e);
                         session.sendCard(new Card({
                             "type": "card",
-                            "theme": "secondary",
+                            "theme": "danger",
                             "size": "lg",
                             "modules": [
                                 {
@@ -82,60 +102,132 @@ class Detail extends AppCommand {
                         }))
                     }
                 });
+                await axios({
+                    url: rtLink,
+                    type: "GET"
+                }).catch(() => {
+                    rtLink = "https://img.kaiheila.cn/assets/2022-07/vlOSxPNReJ0dw0dw.jpg";
+                });
+                link = rtLink;
+                linkmap.addLink(val.id, rtLink);
             }
             await uploadImage();
             linkmap.saveLink();
-            console.log(link);
-            session.sendCard(new Card({
-                "type": "card",
-                "theme": "secondary",
-                "size": "lg",
-                "modules": [
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "kmarkdown",
-                            "content": `**${data.title}**`
-                        }
-                    },
-                    {
-                        "type": "context",
-                        "elements": [
-                            {
+            await axios({
+                url: link,
+                type: "GET"
+            }).catch(() => {
+                link = "https://img.kaiheila.cn/assets/2022-07/vlOSxPNReJ0dw0dw.jpg";
+            });
+            if (loadingBarMessageID == "null") {
+                session.sendCard([{
+                    "type": "card",
+                    "theme": "info",
+                    "size": "lg",
+                    "modules": [
+                        {
+                            "type": "section",
+                            "text": {
                                 "type": "kmarkdown",
-                                "content": `**[${data.user.name}](https://www.pixiv.net/users/${data.user.uid})**(${data.user.uid}) | [pid ${data.id}](https://pixiv.re/${data.id}${data.page_count > 1 ? "-1" : ""}.jpg)`
+                                "content": `**${data.title}**`
                             }
-                        ]
-                    },
-                    {
-                        "type": "divider"
-                    },
-                    {
-                        "type": "container",
-                        "elements": [
-                            {
-                                "type": "image",
-                                "src": link
+                        },
+                        {
+                            "type": "context",
+                            "elements": [
+                                {
+                                    "type": "kmarkdown",
+                                    "content": `**[${data.user.name}](https://www.pixiv.net/users/${data.user.uid})**(${data.user.uid}) | [pid ${data.id}](https://pixiv.re/${data.id}${data.page_count > 1 ? "-1" : ""}.jpg)`
+                                }
+                            ]
+                        },
+                        {
+                            "type": "divider"
+                        },
+                        {
+                            "type": "container",
+                            "elements": [
+                                {
+                                    "type": "image",
+                                    "src": link
+                                }
+                            ]
+                        },
+                        {
+                            "type": "divider"
+                        },
+                        {
+                            "type": "context",
+                            "elements": [
+                                {
+                                    "type": "plain-text",
+                                    "content": `${((): string => {
+                                        var str = ""
+                                        for (const val of data.tags) {
+                                            str += `#${val.name}  `
+                                        }
+                                        return str;
+                                    })()}`
+                                }
+                            ]
+                        }
+                    ]
+                }])
+            } else {
+                session.updateMessage(loadingBarMessageID, [{
+                    "type": "card",
+                    "theme": "info",
+                    "size": "lg",
+                    "modules": [
+                        {
+                            "type": "section",
+                            "text": {
+                                "type": "kmarkdown",
+                                "content": `**${data.title}**`
                             }
-                        ]
-                    },
-                    {
-                        "type": "context",
-                        "elements": [
-                            {
-                                "type": "plain-text",
-                                "content": `${((): string => {
-                                    var str = ""
-                                    for (const val of data.tags) {
-                                        str += `#${val.name}  `
-                                    }
-                                    return str;
-                                })()}`
-                            }
-                        ]
-                    }
-                ]
-            }));
+                        },
+                        {
+                            "type": "context",
+                            "elements": [
+                                {
+                                    "type": "kmarkdown",
+                                    "content": `**[${data.user.name}](https://www.pixiv.net/users/${data.user.uid})**(${data.user.uid}) | [pid ${data.id}](https://pixiv.re/${data.id}${data.page_count > 1 ? "-1" : ""}.jpg)`
+                                }
+                            ]
+                        },
+                        {
+                            "type": "divider"
+                        },
+                        {
+                            "type": "container",
+                            "elements": [
+                                {
+                                    "type": "image",
+                                    "src": link
+                                }
+                            ]
+                        },
+                        {
+                            "type": "divider"
+                        },
+                        {
+                            "type": "context",
+                            "elements": [
+                                {
+                                    "type": "plain-text",
+                                    "content": `${((): string => {
+                                        var str = ""
+                                        for (const val of data.tags) {
+                                            str += `#${val.name}  `
+                                        }
+                                        return str;
+                                    })()}`
+                                }
+                            ]
+                        }
+                    ]
+                }]);
+            }
         }
         if (session.args.length === 0) {
             return session.reply("`.pixiv detail [插画 ID]` 获取对应 ID 插画的详细信息（作品名、作者、简介……）")
