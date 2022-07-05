@@ -105,5 +105,5 @@ dist
 
 src/configs/auth*
 
-test.js
+test/
 package-lock.json

@@ -29,28 +29,28 @@ class PixivMenu extends MenuCommand {
                 "type": "section",
                 "text": {
                     "type": "kmarkdown",
-                    "content": "`.pixiv top [tag]?` 返回当天 [tag] 标签的人气前九的图片，若 [tag] 缺省则为全站排名 (Unimplemented)"
+                    "content": "`.pixiv top [标签]?` 获取当天 [标签] 标签的人气前九的图片，若 [标签] 缺省则为全站排名"
                 }
             },
             {
                 "type": "section",
                 "text": {
                     "type": "kmarkdown",
-                    "content": "`.pixiv illust [illustration ID]` 获取 Pixiv 上对应 ID 的插画 (Unimplemented)"
+                    "content": "`.pixiv illust [插画 ID]` 获取 Pixiv 上对应 ID 的插画"
                 }
             },
             {
                 "type": "section",
                 "text": {
                     "type": "kmarkdown",
-                    "content": `.pixiv author ["id"/"name"] [user ID/username] 获取用户的最新九张插画 (Unimplemented)`
+                    "content": `.pixiv author id/name [用户 ID/用户名] 获取用户的最新九张插画`
                 }
             },
             {
                 "type": "section",
                 "text": {
                     "type": "kmarkdown",
-                    "content": "`.pixiv detail [illustration ID]` 获取对应 ID 插画的详细信息（作品名、作者、简介……） (Unimplemented).20"
+                    "content": "`.pixiv detail [插画 ID]` 获取对应 ID 插画的详细信息（作品名、作者、简介……）"
                 }
             }
         ]

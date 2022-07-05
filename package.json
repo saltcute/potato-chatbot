@@ -23,8 +23,13 @@
   },
   "homepage": "https://github.com/fi6/kbotify-template#readme",
   "dependencies": {
+    "axios": "^0.27.2",
+    "form-data": "^4.0.0",
+    "fs": "^0.0.1-security",
+    "got": "^11.8.3",
     "kbotify": "^0.2.5",
     "najax": "^1.0.7",
+    "sharp": "^0.30.7",
     "ts-node": "^10.8.1",
     "upath": "^2.0.1"
   },
