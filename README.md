@@ -2,6 +2,18 @@
 
 Based on [kbotify](https://github.com/fi6/kBotify)
 
+## TODO
+
+- `.pixiv`
+    - [] Ability to change illustration ranklist time period
+    - [] Maybe a better way of censoring NSFW
+- `.v`
+    - [] Maybe a better way of getting quotes
+- `.music`
+    - [] Implement basic function
+- `.vtuber`
+    - [] Implement basic function
+
 ---
 
 ## Avaliable commands
@@ -63,15 +75,15 @@ Pixiv Commands
 .pixiv detail [Illustration ID] Get the detail of the illustration of the given ID (name, author, tags, etc.)
 ```
 
-Due to data size concern, original image from pixiv will be resize to 512px in width.
-
 Every illustration needs to be uploaded to KOOK's server before sending. R-18 and R-18G (based on Pixiv) illustration (if any) will not be upload and will be replaced with the picture below.
+
+In regard of server bandwidth and load time, original image will be resize to 512px in width before uploading.
 
 Some illustrations may be censored by KOOK after uploading to their servers. Those illustration will be replace by the same picture as well.
 
 ![akarin~](https://img.kaiheila.cn/assets/2022-07/vlOSxPNReJ0dw0dw.jpg)
 
-Although KOOK seems to have their way of preventing massive reupload, after uploading, a map of pixiv illustration ID to its corresponding file link on KOOK's server will be added to a local file `./commands/pixiv/linbmap/map.json`. This can save server bandwidth and improve load time.
+Although KOOK seems to have their way of preventing massive reupload, after uploading, a map of pixiv illustration ID to its corresponding file link on KOOK's server will be added to a local file `./commands/pixiv/common/linkmap/map.json`. This can save server bandwidth and improve load time.
 
 ### `.akarin`
 
