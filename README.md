@@ -5,14 +5,14 @@ Based on [kbotify](https://github.com/fi6/kBotify)
 ## TODO
 
 - `.pixiv`
-    - [] Ability to change illustration ranklist time period
-    - [] Maybe a better way of censoring NSFW
+    - [ ] Ability to change illustration ranklist time period
+    - [ ] Maybe a better way of censoring NSFW
 - `.v`
-    - [] Maybe a better way of getting quotes
+    - [ ] Maybe a better way of getting quotes
 - `.music`
-    - [] Implement basic function
+    - [ ] Implement basic function
 - `.vtuber`
-    - [] Implement basic function
+    - [ ] Implement basic function
 
 ---
 
