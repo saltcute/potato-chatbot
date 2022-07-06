@@ -4,7 +4,9 @@ const FormData = require('form-data');
 const got = require('got');
 const axios = require('axios');
 const sharp = require('sharp');
-import * as linkmap from './linkmap'
+import * as linkmap from './common/linkmap'
+import * as pixiv from './common'
+import auth from '../../configs/auth';
 
 class Illust extends AppCommand {
     code = 'illust'; // 只是用作标记
@@ -19,9 +21,10 @@ class Illust extends AppCommand {
                 const val = data;
                 if (val.x_restrict !== 0) {
                     link = "https://img.kaiheila.cn/assets/2022-07/vlOSxPNReJ0dw0dw.jpg";
+                    return;
                 }
-                if (linkmap.isInDatabase(val.id)) {
-                    link = linkmap.getLink(val.id);
+                if (pixiv.linkmap.isInDatabase(val.id)) {
+                    link = pixiv.linkmap.getLink(val.id);
                     return;
                 } else {
                     await session.sendCard([
@@ -59,47 +62,14 @@ class Illust extends AppCommand {
                     url: "https://www.kookapp.cn/api/v3/asset/create",
                     data: bodyFormData,
                     headers: {
-                        'Authorization': "Bot 1/MTE0NjU=/TZAEeqkcuTV1grq5trNxJw==",
+                        'Authorization': `Bot ${auth.khltoken}`,
                         ...bodyFormData.getHeaders()
                     }
                 }).then((res: any) => {
                     rtLink = res.data.data.url
                 }).catch((e: any) => {
                     if (e) {
-                        console.log(e);
-                        session.sendCard(new Card({
-                            "type": "card",
-                            "theme": "danger",
-                            "size": "lg",
-                            "modules": [
-                                {
-                                    "type": "section",
-                                    "text": {
-                                        "type": "kmarkdown",
-                                        "content": "**内部错误 | Internal Error**"
-                                    }
-                                },
-                                {
-                                    "type": "divider"
-                                },
-                                {
-                                    "type": "context",
-                                    "elements": [
-                                        {
-                                            "type": "plain-text",
-                                            "content": "错误信息（开发者）"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "type": "section",
-                                    "text": {
-                                        "type": "kmarkdown",
-                                        "content": `\`\`\`\n${e}\n\`\`\``
-                                    }
-                                }
-                            ]
-                        }))
+                        session.sendCard(pixiv.cards.error(e))
                     }
                 });
                 await axios({
@@ -109,74 +79,48 @@ class Illust extends AppCommand {
                     rtLink = "https://img.kaiheila.cn/assets/2022-07/vlOSxPNReJ0dw0dw.jpg";
                 });
                 link = rtLink;
-                linkmap.addLink(val.id, rtLink);
+                pixiv.linkmap.addLink(val.id, rtLink);
             }
             await uploadImage();
-            linkmap.saveLink();
+            pixiv.linkmap.saveLink();
             await axios({
                 url: link,
                 type: "GET"
             }).catch(() => {
                 link = "https://img.kaiheila.cn/assets/2022-07/vlOSxPNReJ0dw0dw.jpg";
             });
+            const card = [new Card({
+                "type": "card",
+                "theme": "info",
+                "size": "lg",
+                "modules": [
+                    {
+                        "type": "container",
+                        "elements": [
+                            {
+                                "type": "image",
+                                "src": link
+                            }
+                        ]
+                    },
+                    {
+                        "type": "divider"
+                    },
+                    {
+                        "type": "context",
+                        "elements": [
+                            {
+                                "type": "kmarkdown",
+                                "content": `pid ${data.id} | [原图链接](${`https://pixiv.re/${data.id}${data.page_count > 1 ? "-1" : ""}.jpg`})`
+                            }
+                        ]
+                    }
+                ]
+            })]
             if (loadingBarMessageID == "null") {
-                session.sendCard([{
-                    "type": "card",
-                    "theme": "info",
-                    "size": "lg",
-                    "modules": [
-                        {
-                            "type": "container",
-                            "elements": [
-                                {
-                                    "type": "image",
-                                    "src": link
-                                }
-                            ]
-                        },
-                        {
-                            "type": "divider"
-                        },
-                        {
-                            "type": "context",
-                            "elements": [
-                                {
-                                    "type": "kmarkdown",
-                                    "content": `pid ${data.id} | [原图链接](${`https://pixiv.re/${data.id}${data.page_count > 1 ? "-1" : ""}.jpg`})`
-                                }
-                            ]
-                        }
-                    ]
-                }])
+                session.sendCard(card)
             } else {
-                session.updateMessage(loadingBarMessageID, [{
-                    "type": "card",
-                    "theme": "info",
-                    "size": "lg",
-                    "modules": [
-                        {
-                            "type": "container",
-                            "elements": [
-                                {
-                                    "type": "image",
-                                    "src": link
-                                }
-                            ]
-                        },
-                        {
-                            "type": "divider"
-                        },
-                        {
-                            "type": "context",
-                            "elements": [
-                                {
-                                    "type": "kmarkdown",
-                                    "content": `pid ${data.id} | [原图链接](${`https://pixiv.re/${data.id}${data.page_count > 1 ? "-1" : ""}.jpg`})`
-                                }
-                            ]
-                        }
-                    ]
-                }]);
+                session.updateMessage(loadingBarMessageID, card);
             }
         }
         if (session.args.length === 0) {
@@ -193,40 +137,7 @@ class Illust extends AppCommand {
                 },
                 error: ((e: any) => {
                     if (e) {
-                        console.log(e);
-                        session.sendCard(new Card({
-                            "type": "card",
-                            "theme": "danger",
-                            "size": "lg",
-                            "modules": [
-                                {
-                                    "type": "section",
-                                    "text": {
-                                        "type": "kmarkdown",
-                                        "content": "**内部错误 | Internal Error**"
-                                    }
-                                },
-                                {
-                                    "type": "divider"
-                                },
-                                {
-                                    "type": "context",
-                                    "elements": [
-                                        {
-                                            "type": "plain-text",
-                                            "content": "错误信息（开发者）"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "type": "section",
-                                    "text": {
-                                        "type": "kmarkdown",
-                                        "content": `\`\`\`\n${e}\n\`\`\``
-                                    }
-                                }
-                            ]
-                        }))
+                        session.sendCard(pixiv.cards.error(e));
                     }
                 })
             });
