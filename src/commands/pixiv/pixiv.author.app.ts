@@ -14,14 +14,14 @@ class Author extends AppCommand {
     func: AppFunc<BaseSession> = async (session) => {
         var loadingBarMessageID: string = "null";
         async function sendCard(data: any) {
-            var r18: boolean = false;
+            var r18 = 0;
             var link: string[] = [];
             async function uploadImage() {
                 for (const val of data) {
                     var key = link.length - 1;
                     if (link.length > 9) break;
                     if (val.x_restrict !== 0) {
-                        r18 = true;
+                        r18++;
                         continue;
                     }
                     if (pixiv.linkmap.isInDatabase(val.id)) {
@@ -76,12 +76,44 @@ class Author extends AppCommand {
                             session.sendCard(pixiv.cards.error(e));
                         }
                     });
-                    await axios({
-                        url: rtLink,
-                        type: "GET"
-                    }).catch(() => {
+                    var flag = false;
+                    for (let i = 1; i <= 5; ++i) {
+                        await axios({                                       // Check censorship
+                            url: rtLink,
+                            type: "GET"
+                        }).then(() => {                                     // Image is not censored
+                            flag = true;
+                        }).catch(async () => {                              // Image is censored
+                            const resizer = sharp().resize(512).jpeg();
+                            const blurer = sharp().blur(i * 7).jpeg();      // Add i * 7px (up to 35px) of gaussian blur
+                            const master1200 = val.image_urls.large.replace("i.pximg.net", "i.pixiv.re");
+                            console.log(`[${new Date().toLocaleTimeString()}] Censorship detected, resaving with ${i * 7}px of gaussian blur`);
+                            var stream = got.stream(master1200).pipe(resizer);
+                            const blur = stream.pipe(blurer);
+                            var bodyFormData = new FormData();
+                            bodyFormData.append('file', blur, "1.jpg");
+                            await axios({                                   // Upload blured image to KOOK's server
+                                method: "post",
+                                url: "https://www.kookapp.cn/api/v3/asset/create",
+                                data: bodyFormData,
+                                headers: {
+                                    'Authorization': `Bot ${auth.khltoken}`,
+                                    ...bodyFormData.getHeaders()
+                                }
+                            }).then((res: any) => {
+                                rtLink = res.data.data.url
+                            }).catch((e: any) => {
+                                if (e) {
+                                    session.sendCard(pixiv.cards.error(e));
+                                }
+                            });
+                        });
+                        if (flag) break; // Break as soon as image is not censored
+                    }
+                    if (!flag) { // If image still being censored after 35px of gaussian blur, fall back to Akarin
+                        console.log(`[${new Date().toLocaleTimeString()}] Uncensor failed, falled back with Akarin`);
                         rtLink = "https://img.kaiheila.cn/assets/2022-07/vlOSxPNReJ0dw0dw.jpg";
-                    });
+                    }
                     link.push(rtLink);
                     pixiv.linkmap.addLink(val.id, rtLink);
                 }
@@ -109,7 +141,7 @@ class Author extends AppCommand {
                         "text": {
                             "type": "kmarkdown",
                             "content": `${(() => {
-                                if (r18) {
+                                if (r18 > 9) {
                                     return `(spl)**${data[0].user.name}**(spl) 不可以涩涩`;
                                 } else {
                                     return `**${data[0].user.name}**`
@@ -121,8 +153,8 @@ class Author extends AppCommand {
                         "type": "context",
                         "elements": [
                             {
-                                "type": "plain-text",
-                                "content": `uid [${data[0].user.uid}](https://www.pixiv.net/users/${data[0].user.uid})`
+                                "type": "kmarkdown",
+                                "content": `[uid ${data[0].user.uid}](https://www.pixiv.net/users/${data[0].user.uid})`
                             }
                         ]
                     },

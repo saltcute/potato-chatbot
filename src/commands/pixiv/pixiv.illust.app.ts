@@ -4,7 +4,6 @@ const FormData = require('form-data');
 const got = require('got');
 const axios = require('axios');
 const sharp = require('sharp');
-import * as linkmap from './common/linkmap'
 import * as pixiv from './common'
 import auth from '../../configs/auth';
 
@@ -17,16 +16,16 @@ class Illust extends AppCommand {
         async function sendCard(res: any) {
             const data = JSON.parse(res);
             var link = "";
-            async function uploadImage() {
+            async function uploadImage() { // Upload image
                 const val = data;
-                if (val.x_restrict !== 0) {
+                if (val.x_restrict !== 0) { // Reject explicit R-18 or R-18G illustrations
                     link = "https://img.kaiheila.cn/assets/2022-07/vlOSxPNReJ0dw0dw.jpg";
                     return;
                 }
-                if (pixiv.linkmap.isInDatabase(val.id)) {
+                if (pixiv.linkmap.isInDatabase(val.id)) {  // Return link if exist in linkmap
                     link = pixiv.linkmap.getLink(val.id);
                     return;
-                } else {
+                } else {                                   // Send loading message to user
                     await session.sendCard([
                         {
                             "type": "card",
@@ -49,6 +48,7 @@ class Illust extends AppCommand {
                     });
                 }
 
+                //Fetch illustration and resize to 512px
                 const master1200 = val.image_urls.large.replace("i.pximg.net", "i.pixiv.re");
                 console.log(`[${new Date().toLocaleTimeString()}] Resaving... ${master1200}`);
                 var bodyFormData = new FormData();
@@ -57,6 +57,7 @@ class Illust extends AppCommand {
                 // const stream = got.stream(master1200); // no resize
                 bodyFormData.append('file', stream, "1.jpg");
                 var rtLink = "";
+                //Upload image to KOOK's server
                 await axios({
                     method: "post",
                     url: "https://www.kookapp.cn/api/v3/asset/create",
@@ -69,26 +70,52 @@ class Illust extends AppCommand {
                     rtLink = res.data.data.url
                 }).catch((e: any) => {
                     if (e) {
-                        session.sendCard(pixiv.cards.error(e))
+                        session.sendCard(pixiv.cards.error(e));
                     }
                 });
-                await axios({
-                    url: rtLink,
-                    type: "GET"
-                }).catch(() => {
+                var flag = false;
+                for (let i = 1; i <= 5; ++i) {
+                    await axios({                                       // Check censorship
+                        url: rtLink,
+                        type: "GET"
+                    }).then(() => {                                     // Image is not censored
+                        flag = true;
+                    }).catch(async () => {                              // Image is censored
+                        const resizer = sharp().resize(512).jpeg();
+                        const blurer = sharp().blur(i * 7).jpeg();      // Add i * 7px (up to 35px) of gaussian blur
+                        const master1200 = val.image_urls.large.replace("i.pximg.net", "i.pixiv.re");
+                        console.log(`[${new Date().toLocaleTimeString()}] Censorship detected, resaving with ${i * 7}px of gaussian blur`);
+                        var stream = got.stream(master1200).pipe(resizer);
+                        const blur = stream.pipe(blurer);
+                        var bodyFormData = new FormData();
+                        bodyFormData.append('file', blur, "1.jpg");
+                        await axios({                                   // Upload blured image to KOOK's server
+                            method: "post",
+                            url: "https://www.kookapp.cn/api/v3/asset/create",
+                            data: bodyFormData,
+                            headers: {
+                                'Authorization': `Bot ${auth.khltoken}`,
+                                ...bodyFormData.getHeaders()
+                            }
+                        }).then((res: any) => {
+                            rtLink = res.data.data.url
+                        }).catch((e: any) => {
+                            if (e) {
+                                session.sendCard(pixiv.cards.error(e));
+                            }
+                        });
+                    });
+                    if (flag) break; // Break as soon as image is not censored
+                }
+                if (!flag) { // If image still being censored after 35px of gaussian blur, fall back to Akarin
+                    console.log(`[${new Date().toLocaleTimeString()}] Uncensor failed, falled back with Akarin`);
                     rtLink = "https://img.kaiheila.cn/assets/2022-07/vlOSxPNReJ0dw0dw.jpg";
-                });
+                }
                 link = rtLink;
                 pixiv.linkmap.addLink(val.id, rtLink);
             }
             await uploadImage();
             pixiv.linkmap.saveLink();
-            await axios({
-                url: link,
-                type: "GET"
-            }).catch(() => {
-                link = "https://img.kaiheila.cn/assets/2022-07/vlOSxPNReJ0dw0dw.jpg";
-            });
             const card = [new Card({
                 "type": "card",
                 "theme": "info",
