@@ -102,7 +102,7 @@ class Detail extends AppCommand {
                                 if (data.x_restrict == 0) {
                                     return data.title;
                                 } else {
-                                    return `(spl)${data.tile}(spl) 不可以涩涩`
+                                    return `不可以涩涩`
                                 }
                             })()}**`
                         }
@@ -112,7 +112,7 @@ class Detail extends AppCommand {
                         "elements": [
                             {
                                 "type": "kmarkdown",
-                                "content": `**[${data.user.name}](https://www.pixiv.net/users/${data.user.uid})**(${data.user.uid}) | [pid ${data.id}](https://pixiv.re/${data.id}${data.page_count > 1 ? "-1" : ""}.jpg)`
+                                "content": `**[${data.user.name}](https://www.pixiv.net/users/${data.user.uid})**(${data.user.uid}) | [pid ${data.id}](https://www.pixiv.net/artworks/${data.id})`
                             }
                         ]
                     },
@@ -137,11 +137,15 @@ class Detail extends AppCommand {
                             {
                                 "type": "plain-text",
                                 "content": `${((): string => {
-                                    var str = ""
-                                    for (const val of data.tags) {
-                                        str += `#${val.name}  `
+                                    if (data.x_restrict == 0) {
+                                        var str = ""
+                                        for (const val of data.tags) {
+                                            str += `#${val.name}  `
+                                        }
+                                        return str;
+                                    } else {
+                                        return "#不可以涩涩";
                                     }
-                                    return str;
                                 })()}`
                             }
                         ]

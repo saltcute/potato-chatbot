@@ -14,12 +14,14 @@ class Author extends AppCommand {
     func: AppFunc<BaseSession> = async (session) => {
         var loadingBarMessageID: string = "null";
         async function sendCard(data: any) {
+            var r18: boolean = false;
             var link: string[] = [];
             async function uploadImage() {
                 for (const val of data) {
                     var key = link.length - 1;
                     if (link.length > 9) break;
                     if (val.x_restrict !== 0) {
+                        r18 = true;
                         continue;
                     }
                     if (pixiv.linkmap.isInDatabase(val.id)) {
@@ -106,7 +108,13 @@ class Author extends AppCommand {
                         "type": "section",
                         "text": {
                             "type": "kmarkdown",
-                            "content": `**${data[0].user.name}**`
+                            "content": `${(() => {
+                                if (r18) {
+                                    return `(spl)**${data[0].user.name}**(spl) 不可以涩涩`;
+                                } else {
+                                    return `**${data[0].user.name}**`
+                                }
+                            })()}`
                         }
                     },
                     {

@@ -111,7 +111,7 @@ class Illust extends AppCommand {
                         "elements": [
                             {
                                 "type": "kmarkdown",
-                                "content": `pid ${data.id} | [原图链接](${`https://pixiv.re/${data.id}${data.page_count > 1 ? "-1" : ""}.jpg`})`
+                                "content": `pid ${data.id} | [Pixiv](${`https://www.pixiv.net/artworks/${data.id}`})`
                             }
                         ]
                     }
