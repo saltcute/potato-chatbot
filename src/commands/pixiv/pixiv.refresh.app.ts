@@ -130,7 +130,7 @@ class Refresh extends AppCommand {
                                         "type": "kmarkdown",
                                         "content": `\`${val.id}_p0.jpg\` ${(() => {
                                             if (blurr > 0) {
-                                                return `反和谐成功……${blurr} px 高斯模糊下的瑟图，还能看吗？`
+                                                return `反和谐成功……${blurr} px 高斯模糊下的瑟图……这还能叫瑟图吗…？`
                                             } else {
                                                 return `反和谐结束……好像并不是一张瑟图……`
                                             }
