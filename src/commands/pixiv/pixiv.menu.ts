@@ -1,8 +1,8 @@
-import auth from 'configs/auth';
 import { Card, MenuCommand } from 'kbotify';
 import { author } from './pixiv.author.app';
 import { detail } from './pixiv.detail.app';
 import { illust } from './pixiv.illust.app';
+import { refresh } from './pixiv.refresh.app';
 import { top } from './pixiv.top.app';
 
 class PixivMenu extends MenuCommand {
@@ -36,14 +36,14 @@ class PixivMenu extends MenuCommand {
                 "type": "section",
                 "text": {
                     "type": "kmarkdown",
-                    "content": "`.pixiv illust [插画 ID]` 获取 Pixiv 上对应 ID 的插画"
+                    "content": "`.pixiv author [用户 ID]` 获取用户的最新九张插画"
                 }
             },
             {
                 "type": "section",
                 "text": {
                     "type": "kmarkdown",
-                    "content": "`.pixiv author [用户 ID]` 获取用户的最新九张插画"
+                    "content": "`.pixiv illust [插画 ID]` 获取 Pixiv 上对应 ID 的插画"
                 }
             },
             {
@@ -52,10 +52,17 @@ class PixivMenu extends MenuCommand {
                     "type": "kmarkdown",
                     "content": "`.pixiv detail [插画 ID]` 获取对应 ID 插画的详细信息（作品名、作者、标签……）"
                 }
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "kmarkdown",
+                    "content": "`.pixiv refresh [插画 ID]` 刷新对应 ID 插画的缓存。（当图片显示不正常时，可以在几分钟后运行此命令）"
+                }
             }
         ]
     }).toString();
     useCardMenu = true; // 使用卡片菜单
 }
 
-export const pixivMenu = new PixivMenu(top, illust, detail, author);
+export const pixivMenu = new PixivMenu(top, illust, detail, author, refresh);

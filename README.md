@@ -6,7 +6,9 @@ Based on [kbotify](https://github.com/fi6/kBotify)
 
 - `.pixiv`
     - [ ] Ability to change illustration ranklist time period
-    - [ ] Maybe a better way of censoring NSFW
+    - [x] Refresh linkmap of a certain illustration
+    - [x] (sort of) Maybe a better way of censoring NSFW
+        - NSFW illustrations will be attempted to add gaussian blur for up to 35px before falling back to Akarin
 - `.v`
     - [ ] Maybe a better way of getting quotes
 - `.music`

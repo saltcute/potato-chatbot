@@ -1,8 +1,8 @@
 import { Card, AppCommand, AppFunc, BaseSession } from 'kbotify';
+import axios from 'axios';
 const najax = require('najax');
 const FormData = require('form-data');
 const got = require('got');
-const axios = require('axios');
 const sharp = require('sharp');
 import * as pixiv from './common'
 import auth from '../../configs/auth';
@@ -20,6 +20,7 @@ class Illust extends AppCommand {
                 const val = data;
                 if (val.x_restrict !== 0) { // Reject explicit R-18 or R-18G illustrations
                     link = "https://img.kaiheila.cn/assets/2022-07/vlOSxPNReJ0dw0dw.jpg";
+                    pixiv.linkmap.addLink(val.id, link);
                     return;
                 }
                 if (pixiv.linkmap.isInDatabase(val.id)) {  // Return link if exist in linkmap
@@ -36,7 +37,7 @@ class Illust extends AppCommand {
                                     "type": "section",
                                     "text": {
                                         "type": "kmarkdown",
-                                        "content": `正在转存 ${val.id}_p0.jpg，可能需要较长时间:hourglass_flowing_sand:……`
+                                        "content": `正在转存 \`${val.id}_p0.jpg\`，可能需要较长时间:hourglass_flowing_sand:……`
                                     }
                                 }
                             ]
@@ -77,7 +78,7 @@ class Illust extends AppCommand {
                 for (let i = 1; i <= 5; ++i) {
                     await axios({                                       // Check censorship
                         url: rtLink,
-                        type: "GET"
+                        method: "GET"
                     }).then(() => {                                     // Image is not censored
                         flag = true;
                     }).catch(async () => {                              // Image is censored

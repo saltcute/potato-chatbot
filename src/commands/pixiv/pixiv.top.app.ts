@@ -1,8 +1,8 @@
 import { Card, AppCommand, AppFunc, BaseSession } from 'kbotify';
+import axios from 'axios';
 const najax = require('najax');
 const FormData = require('form-data');
 const got = require('got');
-const axios = require('axios');
 const sharp = require('sharp');
 import * as pixiv from './common'
 import auth from '../../configs/auth';
@@ -37,7 +37,7 @@ class Top extends AppCommand {
                                     "type": "section",
                                     "text": {
                                         "type": "kmarkdown",
-                                        "content": `正在转存 ${val.id}_p0.jpg，可能需要较长时间……(${key + 1}/9) ${key % 2 == 1 ? ":hourglass_flowing_sand:" : ":hourglass:"}……`
+                                        "content": `正在转存 \`${val.id}_p0.jpg\`，可能需要较长时间……(${key + 1}/9) ${key % 2 == 1 ? ":hourglass_flowing_sand:" : ":hourglass:"}……`
                                     }
                                 }
                             ]
@@ -78,9 +78,10 @@ class Top extends AppCommand {
                     });
                     var flag = false;
                     for (let i = 1; i <= 5; ++i) {
+                        console.log(i);
                         await axios({                                       // Check censorship
                             url: rtLink,
-                            type: "GET"
+                            method: "GET"
                         }).then(() => {                                     // Image is not censored
                             flag = true;
                         }).catch(async () => {                              // Image is censored
