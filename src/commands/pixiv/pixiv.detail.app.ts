@@ -1,11 +1,10 @@
 import { Card, AppCommand, AppFunc, BaseSession } from 'kbotify';
-import axios from 'axios';
-const najax = require('najax');
-const FormData = require('form-data');
-const got = require('got');
-const sharp = require('sharp');
-import * as pixiv from './common'
 import auth from '../../configs/auth';
+import * as pixiv from './common';
+import axios from 'axios';
+const FormData = require('form-data');
+const sharp = require('sharp');
+const got = require('got');
 
 class Detail extends AppCommand {
     code = 'detail'; // 只是用作标记
@@ -13,8 +12,7 @@ class Detail extends AppCommand {
     intro = 'Detail';
     func: AppFunc<BaseSession> = async (session) => {
         var loadingBarMessageID: string = "null";
-        async function sendCard(res: any) {
-            const data = JSON.parse(res);
+        async function sendCard(data: any) {
             var link = "";
             async function uploadImage() { // Upload image
                 const val = data;
@@ -116,7 +114,6 @@ class Detail extends AppCommand {
                 pixiv.linkmap.addLink(val.id, rtLink);
             }
             await uploadImage();
-            pixiv.linkmap.saveLink();
             const card = [new Card({
                 "type": "card",
                 "theme": "info",
@@ -189,18 +186,16 @@ class Detail extends AppCommand {
         if (session.args.length === 0) {
             return session.reply("`.pixiv detail [插画 ID]` 获取对应 ID 插画的详细信息（作品名、作者、简介……）")
         } else {
-            najax({
-                url: `http://pixiv.lolicon.ac.cn/illustrationDetail`,
-                type: "GET",
-                data: {
-                    keyword: session.args[0]
-                },
-                success: (res: any) => {
-                    sendCard(res);
-                },
-                error: (e: any) => {
-                    session.sendCard(pixiv.cards.error(e));
+            axios({
+                url: `http://pixiv.lolicon.ac.cn/illustrationDetail?keyword=${session.args[0]}`,
+                method: "GET"
+            }).then((res: any) => {
+                if (res.data.hasOwnProperty("status") && res.data.status === 404) {
+                    return session.reply("插画不存在或已被删除！")
                 }
+                sendCard(res.data);
+            }).catch((e: any) => {
+                session.sendCard(pixiv.cards.error(e));
             });
         }
     };

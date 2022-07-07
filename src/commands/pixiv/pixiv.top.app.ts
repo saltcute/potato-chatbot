@@ -1,12 +1,10 @@
 import { Card, AppCommand, AppFunc, BaseSession } from 'kbotify';
-import axios from 'axios';
-const najax = require('najax');
-const FormData = require('form-data');
-const got = require('got');
-const sharp = require('sharp');
-import * as pixiv from './common'
 import auth from '../../configs/auth';
-import { cards } from './common';
+import * as pixiv from './common';
+import axios from 'axios';
+const FormData = require('form-data');
+const sharp = require('sharp');
+const got = require('got');
 
 class Top extends AppCommand {
     code = 'top'; // 只是用作标记
@@ -14,8 +12,7 @@ class Top extends AppCommand {
     intro = 'Top illustrations';
     func: AppFunc<BaseSession> = async (session) => {
         var loadingBarMessageID: string = "null";
-        async function sendCard(res: any) {
-            const data = JSON.parse(res);
+        async function sendCard(data: any) {
             var link: string[] = [];
             async function uploadImage() {
                 for (const val of data) {
@@ -78,7 +75,6 @@ class Top extends AppCommand {
                     });
                     var flag = false;
                     for (let i = 1; i <= 5; ++i) {
-                        console.log(i);
                         await axios({                                       // Check censorship
                             url: rtLink,
                             method: "GET"
@@ -120,7 +116,6 @@ class Top extends AppCommand {
                 }
             }
             await uploadImage();
-            pixiv.linkmap.saveLink();
             while (link.length <= 9) {
                 link.push(pixiv.common.akarin);
             }
@@ -179,33 +174,22 @@ class Top extends AppCommand {
             }
         }
         if (session.args.length === 0) {
-            najax({
+            axios({
                 url: `http://pixiv.lolicon.ac.cn/ranklist`,
-                type: "GET",
-                success: (res: any) => {
-                    sendCard(res);
-                },
-                error: (e: any) => {
-                    if (e) {
-                        session.sendCard(pixiv.cards.error(e))
-                    }
-                }
+                method: "GET"
+            }).then((res: any) => {
+                sendCard(res.data);
+            }).catch((e: any) => {
+                session.sendCard(pixiv.cards.error(e));
             });
         } else {
-            najax({
-                url: `http://pixiv.lolicon.ac.cn/topInTag`,
-                type: "GET",
-                data: {
-                    keyword: session.args[0]
-                },
-                success: (res: any) => {
-                    sendCard(res);
-                },
-                error: (e: any) => {
-                    if (e) {
-                        session.sendCard(pixiv.cards.error(e))
-                    }
-                }
+            axios({
+                url: `http://pixiv.lolicon.ac.cn/topInTag?keyword=${session.args[0]}`,
+                method: "GET"
+            }).then((res: any) => {
+                sendCard(res.data);
+            }).catch((e: any) => {
+                session.sendCard(pixiv.cards.error(e));
             });
         }
     };

@@ -1,11 +1,10 @@
 import { Card, AppCommand, AppFunc, BaseSession } from 'kbotify';
-import axios from 'axios';
-const najax = require('najax');
-const FormData = require('form-data');
-const got = require('got');
-const sharp = require('sharp');
-import * as pixiv from './common';
 import auth from '../../configs/auth';
+import * as pixiv from './common';
+import axios from 'axios';
+const FormData = require('form-data');
+const sharp = require('sharp');
+const got = require('got');
 
 class Author extends AppCommand {
     code = 'author'; // 只是用作标记
@@ -119,7 +118,6 @@ class Author extends AppCommand {
                 }
             }
             await uploadImage();
-            pixiv.linkmap.saveLink();
             for (let key = 0; key < 9; key++) {
                 await axios({
                     url: link[key],
@@ -213,19 +211,17 @@ class Author extends AppCommand {
         if (session.args.length === 0) {
             return session.reply(`.pixiv author [用户 ID] 获取用户的最新九张插画`)
         } else {
-            najax({
-                url: `http://pixiv.lolicon.ac.cn/creatorIllustrations`,
-                type: "GET",
-                data: {
-                    keyword: session.args[0]
-                },
-                success: (res: any) => {
-                    sendCard(JSON.parse(res));
-                },
-                error: (e: any) => {
-                    if (e) {
-                        session.sendCard(pixiv.cards.error(e));
-                    }
+            axios({
+                url: `http://pixiv.lolicon.ac.cn/creatorIllustrations?keyword=${session.args[0]}`,
+                method: "GET"
+            }).then((res: any) => {
+                if (res.data.length === 0) {
+                    return session.reply("用户不存在或此用户没有上传过插画！")
+                }
+                sendCard(res.data);
+            }).catch((e: any) => {
+                if (e) {
+                    session.sendCard(pixiv.cards.error(e));
                 }
             });
         }

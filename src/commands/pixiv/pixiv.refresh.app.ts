@@ -1,11 +1,10 @@
 import { Card, AppCommand, AppFunc, BaseSession } from 'kbotify';
-const najax = require('najax');
-const FormData = require('form-data');
-const got = require('got');
-const sharp = require('sharp');
-import axios from 'axios';
-import * as pixiv from './common'
 import auth from '../../configs/auth';
+import * as pixiv from './common';
+import axios from 'axios';
+const FormData = require('form-data');
+const sharp = require('sharp');
+const got = require('got');
 
 class Refresh extends AppCommand {
     code = 'refresh'; // 只是用作标记
@@ -26,6 +25,9 @@ class Refresh extends AppCommand {
                 console.log(`[${new Date().toLocaleTimeString()}] Refreshing ${illust_id}_0.jpg`);
                 axios.get(`http://pixiv.lolicon.ac.cn/illustrationDetail?keyword=${illust_id}`, {
                 }).then(async (res: any) => {
+                    if (res.data.hasOwnProperty("status") && res.data.status === 404) {
+                        return session.reply("插画不存在或已被删除！")
+                    }
                     const val = res.data;
                     if (val.x_restrict > 0) {
                         return session.reply("插画因为 R-18/R-18G 无法刷新缓存");
@@ -112,7 +114,7 @@ class Refresh extends AppCommand {
                                     "type": "section",
                                     "text": {
                                         "type": "kmarkdown",
-                                        "content": `\`${val.id}_p0.jpg\` 反和谐失败……尽力了，35px 高斯模糊都救不了的瑟图，一定是不一般的瑟图`
+                                        "content": `\`${val.id}_p0.jpg\` 反和谐失败……尽力了，35px 高斯模糊都救不了的涩图，一定是不一般的涩图`
                                     }
                                 }
                             ]
@@ -130,9 +132,9 @@ class Refresh extends AppCommand {
                                         "type": "kmarkdown",
                                         "content": `\`${val.id}_p0.jpg\` ${(() => {
                                             if (blurr > 0) {
-                                                return `反和谐成功……${blurr} px 高斯模糊下的瑟图……这还能叫瑟图吗…？`
+                                                return `反和谐成功……${blurr} px 高斯模糊下的涩图……这还能叫涩图吗…？`
                                             } else {
-                                                return `反和谐结束……好像并不是一张瑟图……`
+                                                return `反和谐结束……好像并不是一张涩图……`
                                             }
                                         })()}`
                                     }
@@ -194,7 +196,6 @@ class Refresh extends AppCommand {
                         ]
                     }));
                     pixiv.linkmap.addLink(illust_id, rtLink);
-                    pixiv.linkmap.saveLink();
                 }).catch((e: any) => {
                     session.sendCard(pixiv.cards.error(e));
                 });
