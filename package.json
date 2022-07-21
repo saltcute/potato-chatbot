@@ -4,7 +4,8 @@
   "description": "KOOK chat bot with lots of unnecessary features",
   "main": "src/index.ts",
   "scripts": {
-    "start": "node --nolazy -r ts-node/register -r tsconfig-paths/register src/index.ts"
+    "start": "node --nolazy -r ts-node/register -r tsconfig-paths/register src/index.ts",
+    "pm2": "pm2 start pm2-windows.js"
   },
   "repository": {
     "type": "git",
