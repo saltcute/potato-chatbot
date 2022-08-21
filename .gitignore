@@ -106,4 +106,5 @@ dist
 src/configs/auth*
 
 test/
+tokenList.json
 package-lock.json
